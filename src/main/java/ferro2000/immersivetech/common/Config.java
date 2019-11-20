@@ -57,6 +57,8 @@ public class Config {
 			public static int steamTurbine_torqueLossPerTick = 28;
 			@Comment({"How fast should the Steam Turbine's axle rotate in degrees per tick (purely cosmetic)"})
 			public static float steamTurbine_maxRotationSpeed = 72;
+			@Comment({"How fast should the Steam Turbine eat steam multiplier"})
+			public static int steamTurbine_steamConsumption = 2;
 			
 			@Comment({"The max of Flux that the Alternator can store"})
 			public static int alternator_energyStorage = 1200000;

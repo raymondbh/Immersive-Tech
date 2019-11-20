@@ -3,6 +3,7 @@ package ferro2000.immersivetech.common.blocks.metal.tileentities;
 import java.util.ArrayList;
 import java.util.List;
 
+import blusunrize.immersiveengineering.api.energy.wires.redstone.IRedstoneConnector;
 import blusunrize.immersiveengineering.common.util.Utils;
 import com.google.common.collect.Lists;
 
@@ -113,7 +114,8 @@ public class TileEntitySteamTurbine extends TileEntityMultiblockMetal<TileEntity
 		if (burnRemaining > 0) {
 			burnRemaining--;
 			speedUp();
-		} else if (!isRSDisabled() && tanks[0].getFluid() != null && tanks[0].getFluid().getFluid() != null
+		}
+		else if (!isRSDisabled() && tanks[0].getFluid() != null && tanks[0].getFluid().getFluid() != null
 				&& ITUtils.checkMechanicalEnergyReceiver(world, getPos())
 				&& ITUtils.checkAlternatorStatus(world, getPos())) {
 
@@ -122,13 +124,22 @@ public class TileEntitySteamTurbine extends TileEntityMultiblockMetal<TileEntity
 				lastRecipe.isValid() &&
 				tanks[0].getFluid().isFluidEqual(lastRecipe.input))?
 				lastRecipe : SteamTurbineRecipe.findFuel(tanks[0].getFluid());
-			if (recipe != null && recipe.input.amount <= tanks[0].getFluidAmount()) {
+
+			if (recipe != null && recipe.input.amount * ITConfig.Machines.steamTurbine_steamConsumption <= tanks[0].getFluidAmount()) {
 				lastRecipe = recipe;
-				tanks[0].drain(recipe.input.amount, true);
+				tanks[0].drain(recipe.input.amount * ITConfig.Machines.steamTurbine_steamConsumption, true);
 				burnRemaining = recipe.time;
 				if (recipe.output != null) tanks[1].fill(recipe.output, true);
 				speedUp();
-			} else speedDown();
+			}
+			else if(recipe != null && tanks[0].getFluidAmount() != 0) {
+				lastRecipe = recipe;
+				if((tanks[0].getFluidAmount() * 100) / (recipe.input.amount * ITConfig.Machines.steamTurbine_steamConsumption) < (mechanicalEnergy.getSpeed() * 100) / ITConfig.Machines.mechanicalEnergy_maxSpeed)
+					speedDown();
+				tanks[0].drain(tanks[0].getFluidAmount(), true);
+				if (recipe.output != null) tanks[1].fill(recipe.output, true);
+			}
+			else speedDown();
 
 		} else speedDown();
 

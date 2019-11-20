@@ -184,7 +184,7 @@ public class TileEntityBoiler extends TileEntityMultiblockMetal<TileEntityBoiler
 			}
 			if(this.tanks[2].getFluidAmount()>0)
 			{
-				FluidStack out = Utils.copyFluidStackWithAmount(this.tanks[2].getFluid(), Math.min(this.tanks[2].getFluidAmount(), 80), false);
+				FluidStack out = Utils.copyFluidStackWithAmount(this.tanks[2].getFluid(), Math.min(this.tanks[2].getFluidAmount(), 960), false);
 
 				BlockPos outputPos = ITUtils.LocalOffsetToWorldBlockPos(this.getPos(), mirrored? 2 : -2, 2, 1, facing);
 				IFluidHandler output = FluidUtil.getFluidHandler(world, outputPos, facing);

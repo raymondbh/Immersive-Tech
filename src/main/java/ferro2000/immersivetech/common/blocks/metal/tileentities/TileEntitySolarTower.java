@@ -130,15 +130,14 @@ public class TileEntitySolarTower extends TileEntityMultiblockMetal<TileEntitySo
 
 			if (this.tanks[1].getFluidAmount() > 0) {
 				FluidStack out = Utils.copyFluidStackWithAmount(this.tanks[1].getFluid(),
-						Math.min(this.tanks[1].getFluidAmount(), 100), false);
+						Math.min(this.tanks[1].getFluidAmount(), 480), false);
 				BlockPos outputPos = this.getPos().add(0, -1, 0).offset(facing, 3);
 
 				IFluidHandler output = FluidUtil.getFluidHandler(world, outputPos, facing);
 				if (output != null) {
 					int accepted = output.fill(out, false);
 					if (accepted > 0) {
-						int drained = output
-								.fill(Utils.copyFluidStackWithAmount(out, Math.min(out.amount, accepted), false), true);
+						int drained = output.fill(Utils.copyFluidStackWithAmount(out, Math.min(out.amount, accepted), false), true);
 						this.tanks[1].drain(drained, true);
 						update = true;
 					}
