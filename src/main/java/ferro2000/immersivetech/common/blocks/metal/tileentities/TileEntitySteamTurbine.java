@@ -115,8 +115,8 @@ public class TileEntitySteamTurbine extends TileEntityMultiblockMetal<TileEntity
 				|| tanks[0].getFluid() == null
 				//|| tanks[0].getFluid().getFluid() == null
 				|| tanks[0].getFluidAmount() <= 0
-				|| ITUtils.checkMechanicalEnergyReceiver(world, getPos())
-				|| ITUtils.checkAlternatorStatus(world, getPos())
+				|| !ITUtils.checkMechanicalEnergyReceiver(world, getPos())
+				|| !ITUtils.checkAlternatorStatus(world, getPos())
 		){
 			lastRecipe = null;
 			speedDown();
@@ -141,7 +141,10 @@ public class TileEntitySteamTurbine extends TileEntityMultiblockMetal<TileEntity
 
 		if (efficiency >= 100) {
 			tanks[0].drain(recipe.input.amount, true);
-			if (recipe.output != null) tanks[1].fill(recipe.output, true);
+
+			if (recipe.output != null){
+				tanks[1].fill(recipe.output, true);
+			}
 			speedUp();
 		}
 		else {
@@ -153,8 +156,12 @@ public class TileEntitySteamTurbine extends TileEntityMultiblockMetal<TileEntity
 				speedUp();
 
 			tanks[0].drain(tanks[0].getFluidAmount(), true);
-			if (recipe.output != null) tanks[1].fill(new FluidStack(recipe.output, recipe.output.amount * efficiency / 100), true);
+
+			if (recipe.output != null){
+				tanks[1].fill(new FluidStack(recipe.output, recipe.output.amount * efficiency / 100), true);
+			}
 		}
+		pumpOutputOut();
 	}
 
 	@Override
