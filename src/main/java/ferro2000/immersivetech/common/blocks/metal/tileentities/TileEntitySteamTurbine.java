@@ -111,39 +111,50 @@ public class TileEntitySteamTurbine extends TileEntityMultiblockMetal<TileEntity
 
 		if (world.isRemote) return;
 
-		if (burnRemaining > 0) {
-			burnRemaining--;
+		if (isRSDisabled()
+				|| tanks[0].getFluid() == null
+				//|| tanks[0].getFluid().getFluid() == null
+				|| tanks[0].getFluidAmount() <= 0
+				|| ITUtils.checkMechanicalEnergyReceiver(world, getPos())
+				|| ITUtils.checkAlternatorStatus(world, getPos())
+		){
+			lastRecipe = null;
+			speedDown();
+			pumpOutputOut();
+			return;
+		}
+
+		SteamTurbineRecipe recipe = (
+				lastRecipe != null
+				&& lastRecipe.isValid()
+				&& tanks[0].getFluid().isFluidEqual(lastRecipe.input)
+		)
+				? lastRecipe : SteamTurbineRecipe.findFuel(tanks[0].getFluid());
+
+		if (recipe == null) {
+			speedDown();
+			pumpOutputOut();
+			return;
+		}
+
+		int efficiency = tanks[0].getFluidAmount() * 100 / recipe.input.amount;
+
+		if (efficiency >= 100) {
+			tanks[0].drain(recipe.input.amount, true);
+			if (recipe.output != null) tanks[1].fill(recipe.output, true);
 			speedUp();
 		}
-		else if (!isRSDisabled() && tanks[0].getFluid() != null && tanks[0].getFluid().getFluid() != null
-				&& ITUtils.checkMechanicalEnergyReceiver(world, getPos())
-				&& ITUtils.checkAlternatorStatus(world, getPos())) {
+		else {
+			int current_speed = mechanicalEnergy.getSpeed() * 100 / ITConfig.Machines.mechanicalEnergy_maxSpeed;
 
-			SteamTurbineRecipe recipe = (
-				lastRecipe != null &&
-				lastRecipe.isValid() &&
-				tanks[0].getFluid().isFluidEqual(lastRecipe.input))?
-				lastRecipe : SteamTurbineRecipe.findFuel(tanks[0].getFluid());
-
-			if (recipe != null && recipe.input.amount * ITConfig.Machines.steamTurbine_steamConsumption <= tanks[0].getFluidAmount()) {
-				lastRecipe = recipe;
-				tanks[0].drain(recipe.input.amount * ITConfig.Machines.steamTurbine_steamConsumption, true);
-				burnRemaining = recipe.time;
-				if (recipe.output != null) tanks[1].fill(recipe.output, true);
+			if(efficiency < current_speed)
+				speedDown();
+			else if(efficiency > current_speed)
 				speedUp();
-			}
-			else if(recipe != null && tanks[0].getFluidAmount() != 0) {
-				lastRecipe = recipe;
-				if((tanks[0].getFluidAmount() * 100) / (recipe.input.amount * ITConfig.Machines.steamTurbine_steamConsumption) < (mechanicalEnergy.getSpeed() * 100) / ITConfig.Machines.mechanicalEnergy_maxSpeed)
-					speedDown();
-				tanks[0].drain(tanks[0].getFluidAmount(), true);
-				if (recipe.output != null) tanks[1].fill(recipe.output, true);
-			}
-			else speedDown();
 
-		} else speedDown();
-
-		pumpOutputOut();
+			tanks[0].drain(tanks[0].getFluidAmount(), true);
+			if (recipe.output != null) tanks[1].fill(new FluidStack(recipe.output, recipe.output.amount * efficiency / 100), true);
+		}
 	}
 
 	@Override

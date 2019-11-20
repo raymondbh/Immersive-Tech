@@ -193,7 +193,7 @@ public class ITContent {
 		}
 
 		if (Machines.enable_steamTurbine && Machines.register_steamTurbine_recipes) {
-			SteamTurbineRecipe.addFuel(new FluidStack(fluidDistWater, 100), new FluidStack(fluidSteam, 500), 1);
+			SteamTurbineRecipe.addFuel(new FluidStack(fluidDistWater, 100), new FluidStack(fluidSteam, 720), 1);
 		}
 	}
 	
